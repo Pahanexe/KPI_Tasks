@@ -1,4 +1,5 @@
-﻿using System;
+﻿//В цій програмі функція мап припиняє роботу після того як зустрічається із числом нуль.
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,13 +54,13 @@ public class Program
         Task<int>[] tasks = new Task<int>[array.Length];
         for (int i = 0; i < array.Length; i++)
         {
-            int index = i; // Зберігаємо індекс для правильного доступу до елемента
+            int index = i; 
             tasks[i] = Task.Run(async () =>
             {
-                token.ThrowIfCancellationRequested(); // Перевіряємо, чи було скасування
+                token.ThrowIfCancellationRequested(); 
                 if (array[index] == 0)
                 {
-                    cts.Cancel(); // Скасовуємо всі інші завдання, якщо стикнулись із нулем
+                    cts.Cancel(); 
                     throw new OperationCanceledException("Зустріли число 0. Скасування операції.");
                 }
                 return await func(array[index]);
