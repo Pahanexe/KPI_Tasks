@@ -1,35 +1,39 @@
 ﻿using System;
 
+public class Mapper
+{
+    public IAsyncResult Map(int[] array, Func<int, int> func, AsyncCallback callback)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (func == null) throw new ArgumentNullException(nameof(func));
+
+        Func<int[], Func<int, int>, int[]> operation = (arr, func) =>
+        {
+            int[] result = new int[arr.Length];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                result[i] = func(arr[i]);
+            }
+            return result;
+        };
+
+        return operation.BeginInvoke(array, func, callback, null);
+    }
+}
+
 public class Task1
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
-        int[] numbers = { 1, 2, 3, 4, 5 };
+        var mapper = new Mapper();
 
-        Map(numbers, x => x * 2, result =>
+        int[] array = { 1, 2, 3, 4, 5 };
+        mapper.Map(array, x => x * 2, ar =>
         {
-            Console.WriteLine("Результат після подвоєння:");
-            Console.WriteLine(string.Join(", ", result));
+            var result = ((Func<int[], Func<int, int>, int[]>)((AsyncResult)ar).AsyncDelegate).EndInvoke(ar);
+            Console.WriteLine("Результат: " + string.Join(", ", result));
         });
 
-        Map(numbers, x => x * x, result =>
-        {
-            Console.WriteLine("Результат після піднесення до квадрата:");
-            Console.WriteLine(string.Join(", ", result));
-        });
-
-        Console.ReadKey();
-    }
-
-    public static void Map(int[] array, Func<int, int> func, Action<int[]> callback)
-    {
-        int[] result = new int[array.Length];
-        for (int i = 0; i < array.Length; i++)
-        {
-            result[i] = func(array[i]);
-        }
-
-        // Викликаємо колбек із результатом
-        callback(result);
+        Console.WriteLine("Операція запущена.");
     }
 }
